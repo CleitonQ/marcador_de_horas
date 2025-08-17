@@ -1,0 +1,9 @@
+# Memória do Gradle
+org.gradle.jvmargs=-Xmx4G
+
+# AndroidX
+android.useAndroidX=true
+android.enableJetifier=true
+
+# Aponte para o JDK 17 instalado no seu sistema
+org.gradle.java.home=C:/Program Files/Java/jdk-17.0.8
