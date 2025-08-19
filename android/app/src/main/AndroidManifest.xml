@@ -1,4 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="br.com.webevolui.horas.v3.horas_v3">
     <application
         android:label="marcador-de-horas"
         android:name="${applicationName}"

@@ -7,16 +7,27 @@ import 'firebase_options.dart';
 import 'screens/home_screen.dart';
 import 'services/auth_service.dart'; // <-- Adicionando isso
 import 'package:logger/logger.dart';  // <-- Importando o pacote de logger
+import 'package:flutter/foundation.dart';  // <-- Importando para usar compute
+
+// Função que simula uma operação cara (demorada)
+int expensiveOperation(int input) {
+  // Simulação de operação cara
+  return input * 2;  // Retorna o dobro do valor (apenas exemplo)
+}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Inicializando Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  // Configuração de mensagens em segundo plano
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
+  // Executando a operação cara em segundo plano (compute é uma operação assíncrona)
+  // Aqui usamos FutureBuilder para aguardar a execução dessa operação e atualizar a UI
   runApp(MyApp());
 }
 
@@ -34,7 +45,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Horas V3',
+      title: 'Horas',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -52,17 +63,35 @@ class RoteadorTelas extends StatelessWidget {
   Widget build(BuildContext context) {
     final authService = AuthService(); // <-- instanciando AuthService
 
-    return StreamBuilder(
-      stream: FirebaseAuth.instance.userChanges(),
+    // Usando FutureBuilder para rodar a operação cara no segundo plano
+    return FutureBuilder<int>(
+      future: compute(expensiveOperation, 10),  // Exemplo com input 10
       builder: (context, snapshot) {
+        // Verifica o estado da operação cara
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Erro: ${snapshot.error}'));
         } else {
-          if (snapshot.hasData) {
-            return HomeScreen(user: snapshot.data!);
-          } else {
-            return LoginScreen(authService: authService); // <-- passando aqui
-          }
+          // Quando a operação cara terminar, mostramos o valor no log
+          print("Resultado da operação cara: ${snapshot.data}");
+
+          return StreamBuilder(
+            stream: FirebaseAuth.instance.userChanges(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else {
+                if (snapshot.hasData) {
+                  // Usuário autenticado, mostrando a tela inicial
+                  return HomeScreen(user: snapshot.data!);
+                } else {
+                  // Usuário não autenticado, mostrando a tela de login
+                  return LoginScreen(authService: authService); // <-- passando aqui
+                }
+              }
+            },
+          );
         }
       },
     );

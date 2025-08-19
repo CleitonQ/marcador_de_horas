@@ -138,7 +138,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 controller: dataController,
                 keyboardType: TextInputType.datetime,
                 decoration: const InputDecoration(
-                  hintText: '01/01/2024',
+                  hintText: '01/01/2025',
                   labelText: 'Data',
                 ),
                 inputFormatters: [dataMaskFormatter],
@@ -239,7 +239,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     setState(() {
       listHours = temp;
-      titulo = 'Horas V3 - Total: ${horas.inHours.toString()}h:${horas.inMinutes.remainder(60).toString().padLeft(2, '0')}';
+      titulo = 'Horas - Total: ${horas.inHours.toString()}h:${horas.inMinutes.remainder(60).toString().padLeft(2, '0')}';
     });
   }
 }
