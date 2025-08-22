@@ -5,9 +5,15 @@ import 'package:horas_v3/screens/login_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'screens/home_screen.dart';
-import 'services/auth_service.dart'; // <-- Adicionando isso
-import 'package:logger/logger.dart';  // <-- Importando o pacote de logger
-import 'package:flutter/foundation.dart';  // <-- Importando para usar compute
+import 'services/auth_service.dart';
+import 'package:logger/logger.dart';
+import 'package:flutter/foundation.dart';
+import 'package:provider/provider.dart';
+import 'models/theme_provider.dart';
+import 'package:horas_v3/models/language_provider.dart';  // Importe o LanguageProvider
+import 'package:horas_v3/l10n/app_localizations.dart'; // Para o uso das traduções
+import 'package:flutter_localizations/flutter_localizations.dart';
+
 
 // Função que simula uma operação cara (demorada)
 int expensiveOperation(int input) {
@@ -26,56 +32,66 @@ Future<void> main() async {
   // Configuração de mensagens em segundo plano
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-  // Executando a operação cara em segundo plano (compute é uma operação assíncrona)
-  // Aqui usamos FutureBuilder para aguardar a execução dessa operação e atualizar a UI
-  runApp(MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),  // ThemeProvider
+        ChangeNotifierProvider(create: (_) => LanguageProvider()),  // LanguageProvider
+      ],
+      child: MyApp(),
+    ),
+  );
 }
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-
-  final logger = Logger(); // <-- Instanciando o logger
-  logger.d('### Handling a background message ${message.messageId}');  // <-- Usando o logger
+  final logger = Logger();
+  logger.d('### Handling a background message ${message.messageId}');
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key}); // <-- Construtor agora é const
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Obtendo o idioma atual do LanguageProvider
+    final languageProvider = Provider.of<LanguageProvider>(context);
+
     return MaterialApp(
       title: 'Horas',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        useMaterial3: true,
-      ),
+      theme: Provider.of<ThemeProvider>(context).currentTheme, // Usa o tema atual
+      locale: languageProvider.locale, // Define o locale para o idioma atual
+      localizationsDelegates: [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('en', 'US'), // Inglês
+        Locale('pt', 'BR'), // Português
+      ],
       home: const RoteadorTelas(),
     );
   }
 }
 
 class RoteadorTelas extends StatelessWidget {
-  const RoteadorTelas({super.key}); // <-- Construtor agora é const
+  const RoteadorTelas({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final authService = AuthService(); // <-- instanciando AuthService
+    final authService = AuthService();
 
-    // Usando FutureBuilder para rodar a operação cara no segundo plano
     return FutureBuilder<int>(
-      future: compute(expensiveOperation, 10),  // Exemplo com input 10
+      future: compute(expensiveOperation, 10), // Exemplo com input 10
       builder: (context, snapshot) {
-        // Verifica o estado da operação cara
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
           return Center(child: Text('Erro: ${snapshot.error}'));
         } else {
-          // Quando a operação cara terminar, mostramos o valor no log
-          print("Resultado da operação cara: ${snapshot.data}");
-
           return StreamBuilder(
             stream: FirebaseAuth.instance.userChanges(),
             builder: (context, snapshot) {
@@ -83,11 +99,9 @@ class RoteadorTelas extends StatelessWidget {
                 return const Center(child: CircularProgressIndicator());
               } else {
                 if (snapshot.hasData) {
-                  // Usuário autenticado, mostrando a tela inicial
                   return HomeScreen(user: snapshot.data!);
                 } else {
-                  // Usuário não autenticado, mostrando a tela de login
-                  return LoginScreen(authService: authService); // <-- passando aqui
+                  return LoginScreen(authService: authService);
                 }
               }
             },
