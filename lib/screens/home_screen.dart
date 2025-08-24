@@ -10,7 +10,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import '../components/menu.dart';
 import 'package:horas_v3/models/hour.dart';
 import 'package:horas_v3/models/language_provider.dart'; // Importando o LanguageProvider
-import 'package:horas_v3/main.dart'; // Importando MyApp para acessar o setLocale
 import 'package:horas_v3/l10n/l10n.dart';  // Importa o arquivo centralizado de localizações
 
 class HomeScreen extends StatefulWidget {
