@@ -9,4 +9,3 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get horas => 'Hours'; // Tradução para "Hours"
 }
-
