@@ -50,3 +50,6 @@ intl_translation: ^0.18.2
 flutter:
   uses-material-design: true
   generate: true
+
+assets:
+  - assets/flags/

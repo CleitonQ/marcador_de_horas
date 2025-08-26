@@ -127,7 +127,6 @@ class Menu extends StatelessWidget {
                       },
                       child: Row(
                         children: [
-                          Image.asset('assets/flags/usa.png', width: 20),
                           SizedBox(width: 8),
                           Text('English'),
                         ],
@@ -140,7 +139,6 @@ class Menu extends StatelessWidget {
                       },
                       child: Row(
                         children: [
-                          Image.asset('assets/flags/brazil.png', width: 20),
                           SizedBox(width: 8),
                           Text('Português'),
                         ],
