@@ -5,6 +5,7 @@ import 'package:horas_v3/screens/reset_password_modal.dart';
 import 'package:horas_v3/models/language_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:horas_v3/models/theme_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Menu extends StatelessWidget {
   final User user; // O usuário logado, passado como parâmetro para o Menu
@@ -121,8 +122,11 @@ class Menu extends StatelessWidget {
                   title: const Text('Escolha o idioma'),
                   children: [
                     SimpleDialogOption(
-                      onPressed: () {
+                      onPressed: () async {
                         languageProvider.setLocale(Locale('en', 'US')); // Mudar para inglês
+                        // Salvar idioma em SharedPreferences
+                        SharedPreferences prefs = await SharedPreferences.getInstance();
+                        prefs.setString('language', 'en');
                         Navigator.of(context).pop(); // Fecha o diálogo
                       },
                       child: Row(
@@ -133,8 +137,11 @@ class Menu extends StatelessWidget {
                       ),
                     ),
                     SimpleDialogOption(
-                      onPressed: () {
+                      onPressed: () async {
                         languageProvider.setLocale(Locale('pt', 'BR')); // Mudar para português
+                        // Salvar idioma em SharedPreferences
+                        SharedPreferences prefs = await SharedPreferences.getInstance();
+                        prefs.setString('language', 'pt');
                         Navigator.of(context).pop(); // Fecha o diálogo
                       },
                       child: Row(

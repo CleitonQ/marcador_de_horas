@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart'; // Para formatação da data/hora
 import 'package:provider/provider.dart';
 import 'package:horas_v3/l10n/app_localizations.dart'; // Para acessar as traduções do app
 import 'package:horas_v3/helpers/hour_helpers.dart'; // Helper para manipulação de horas
@@ -29,7 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    setuptFCM();  // Função definida acima
+    setuptFCM();  // Função definida abaixo
     refresh();
   }
 
@@ -61,44 +63,13 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
         actions: [
-          IconButton(
-            icon: Row(
-              children: [
-                Icon(Icons.language), // Ícone de idioma
-                SizedBox(width: 8),
-                Text(
-                  languageProvider.locale.languageCode.toUpperCase(), // Exibe o código do idioma (pt, en)
-                ),
-              ],
-            ),
-            onPressed: () {
-              // Alternar entre idiomas
-              showMenu(
-                context: context,
-                position: RelativeRect.fromLTRB(100.0, 100.0, 0.0, 0.0),
-                items: [
-                  PopupMenuItem(
-                    value: Locale('en', 'US'),
-                    child: Text('English'),
-                  ),
-                  PopupMenuItem(
-                    value: Locale('pt', 'BR'),
-                    child: Text('Português'),
-                  ),
-                ],
-              ).then((locale) {
-                if (locale != null) {
-                  languageProvider.setLocale(locale); // Mudar o idioma usando o provider
-                  refresh(); // Atualizar os dados com o novo idioma
-                }
-              });
-            },
+          // Relógio
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: ClockWidget(), // Usando o ClockWidget aqui
           ),
         ],
       ),
-
-
-
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showFormModal(); // Abre o modal para adicionar uma nova hora
@@ -168,114 +139,134 @@ class _HomeScreenState extends State<HomeScreen> {
     String skipButton = "Cancelar";
 
     TextEditingController dataController = TextEditingController();
-    final dataMaskFormatter = MaskTextInputFormatter(mask: '##/##/####');
+    final dataMaskFormatter = MaskTextInputFormatter(mask: '##/##/####'); // Máscara para a data
     TextEditingController minutosController = TextEditingController();
     final minutosMaskFormatter = MaskTextInputFormatter(mask: '##:##');
     TextEditingController descricaoController = TextEditingController();
 
+    // Define o valor da data com o dia atual
+    String currentDate = DateFormat('dd/MM/yyyy').format(DateTime.now());
+    dataController.text = currentDate; // Define o campo de data com a data atual
+
     if (model != null) {
       title = "Editando";
-      dataController.text = model.data;
+      dataController.text = model.data;  // Se estiver editando, preenche com a data do modelo
       minutosController.text = HourHelper.minutesTohours(model.minutos);
       if (model.descricao != null) {
         descricaoController.text = model.descricao!;
       }
     }
 
-    showModalBottomSheet(
+    showDialog(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(24),
-        ),
-      ),
       builder: (context) {
-        return Container(
-          height: MediaQuery.of(context).size.height,
-          padding: const EdgeInsets.all(32),
-          child: ListView(
-            children: [
-              Text(title, style: Theme.of(context).textTheme.headlineSmall),
-              TextFormField(
-                controller: dataController,
-                keyboardType: TextInputType.datetime,
-                decoration: const InputDecoration(
-                  hintText: '01/01/2025',
-                  labelText: 'Data',
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(32),
+            height: MediaQuery.of(context).size.height * 0.6, // Ajuste para o modal flutuante
+            child: ListView(
+              children: [
+                Text(title, style: Theme.of(context).textTheme.headlineSmall),
+                TextFormField(
+                  controller: dataController,
+                  keyboardType: TextInputType.datetime,
+                  decoration: const InputDecoration(
+                    hintText: '01/01/2025',
+                    labelText: 'Data',
+                  ),
+                  inputFormatters: [dataMaskFormatter], // Aplica a formatação automática
+                  onTap: () async {
+                    // Exibir o calendário ao tocar no campo de data
+                    FocusScope.of(context).requestFocus(FocusNode()); // Remove o foco do campo de texto
+                    DateTime? pickedDate = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime(2000), // Data inicial
+                      lastDate: DateTime(2101), // Data final
+                    );
+                    if (pickedDate != null) {
+                      String formattedDate = DateFormat('dd/MM/yyyy').format(pickedDate);
+                      setState(() {
+                        dataController.text = formattedDate; // Atualiza o campo de data com a data escolhida
+                      });
+                    }
+                  },
                 ),
-                inputFormatters: [dataMaskFormatter],
-              ),
-              const SizedBox(
-                height: 16,
-              ),
-              TextFormField(
-                controller: minutosController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                    hintText: '00:00', labelText: 'Horas trabalhadas'),
-                inputFormatters: [minutosMaskFormatter],
-              ),
-              const SizedBox(
-                height: 16,
-              ),
-              TextFormField(
-                controller: descricaoController,
-                keyboardType: TextInputType.text,
-                decoration: const InputDecoration(
-                    hintText: 'Lembrete do que você fez',
-                    labelText: 'Descrição'),
-              ),
-              const SizedBox(
-                height: 16,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Text(
-                      skipButton,
+                const SizedBox(
+                  height: 16,
+                ),
+                TextFormField(
+                  controller: minutosController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                      hintText: '00:00', labelText: 'Horas trabalhadas'),
+                  inputFormatters: [minutosMaskFormatter],
+                ),
+                const SizedBox(
+                  height: 16,
+                ),
+                TextFormField(
+                  controller: descricaoController,
+                  keyboardType: TextInputType.text,
+                  decoration: const InputDecoration(
+                      hintText: 'Lembrete do que você fez',
+                      labelText: 'Descrição'),
+                ),
+                const SizedBox(
+                  height: 16,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text(
+                        skipButton,
+                      ),
                     ),
-                  ),
-                  const SizedBox(
-                    width: 16,
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      Hour hour = Hour(
-                          id: const Uuid().v1(),
-                          data: dataController.text,
-                          minutos: HourHelper.hoursToMinutos(
-                            minutosController.text,
-                          ));
+                    const SizedBox(
+                      width: 16,
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Hour hour = Hour(
+                            id: const Uuid().v1(),
+                            data: dataController.text,
+                            minutos: HourHelper.hoursToMinutos(
+                              minutosController.text,
+                            ));
 
-                      if (descricaoController.text != "") {
-                        hour.descricao = descricaoController.text;
-                      }
+                        if (descricaoController.text != "") {
+                          hour.descricao = descricaoController.text;
+                        }
 
-                      if (model != null) {
-                        hour.id = model.id;
-                      }
+                        if (model != null) {
+                          hour.id = model.id;
+                        }
 
-                      firestore
-                          .collection(widget.user.uid)
-                          .doc(hour.id)
-                          .set(hour.toMap());
+                        firestore
+                            .collection(widget.user.uid)
+                            .doc(hour.id)
+                            .set(hour.toMap());
 
-                      refresh();
+                        refresh();
 
-                      Navigator.pop(context);
-                    },
-                    child: Text(confirmationButton),
-                  ),
-                ],
-              ),
-              const SizedBox(
-                height: 180,
-              )
-            ],
+                        Navigator.pop(context);
+                      },
+                      child: Text(confirmationButton),
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 180,
+                )
+              ],
+            ),
           ),
         );
       },
@@ -341,5 +332,46 @@ class _HomeScreenState extends State<HomeScreen> {
         print('Message also contained a notification: ${message.notification}');
       }
     });
+  }
+}
+
+// Relógio que não será afetado por alterações de tema ou idioma
+class ClockWidget extends StatefulWidget {
+  @override
+  _ClockWidgetState createState() => _ClockWidgetState();
+}
+
+class _ClockWidgetState extends State<ClockWidget> {
+  late String formattedTime;
+  late Timer _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _updateTime();
+    _timer = Timer.periodic(Duration(seconds: 1), (_) => _updateTime());
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel(); // Cancela o timer quando o widget for destruído
+    super.dispose();
+  }
+
+  void _updateTime() {
+    setState(() {
+      formattedTime = DateFormat('HH:mm:ss').format(DateTime.now());
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(Icons.access_time), // Ícone de relógio
+        SizedBox(width: 8),
+        Text(formattedTime), // Exibe a hora formatada
+      ],
+    );
   }
 }
