@@ -1,14 +1,46 @@
-import 'app_localizations.dart';
-
-class AppLocalizationsEn extends AppLocalizations {
-AppLocalizationsEn() : super('en');
-
-@override
-String get changeLanguageButton => 'Change Language'; // Tradução para o inglês
-
-@override
-String get horas => 'Hours'; // Tradução para "Hours"
+{
+  "@@locale": "en",
+  "changeLanguageButton": "Change Language",
+  "horas": "Hours",
+  "deleteAccount": "Delete Account",
+  "resetPassword": "Reset Password",
+  "changeTheme": "Change Theme",
+  "logOut": "Log Out",
+  "confirmDeleteAccount": "Confirm Account Deletion",
+  "passwordPrompt": "Enter your password to confirm account deletion:",
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+  "nameLabel": "Name",
+  "emailLabel": "Email",
+  "passwordLabel": "Password",
+  "confirmPasswordLabel": "Confirm your password",
+  "registerButton": "Sign up",
+  "passwordsDoNotMatch": "Passwords do not match",
+  "signInButton": "Sign in",
+  "signInWithGoogle": "Sign in with Google",
+  "noAccountCreate": "Don’t have an account? Create one",
+  "forgotPassword": "Forgot your password?",
+  "total": "Total",
+  "emptyStateMessage": "No records yet",
+  "addButton": "Add",
+  "addDialogTitle": "Add entry",
+  "editDialogTitle": "Edit entry",
+  "saveButton": "Save",
+  "dateLabel": "Date",
+  "dateHint": "01/01/2025",
+  "timeLabel": "Time",
+  "workedHoursLabel": "Worked hours",
+  "workedHoursHint": "00:00",
+  "descriptionLabel": "Description",
+  "descriptionHint": "Reminder of what you did",
+  "resetPasswordTitle": "Recover password",
+  "emailAddressLabel": "Email address",
+  "enterValidEmail": "Please enter a valid email address",
+  "recoverPasswordButton": "Recover password",
+  "resetLinkSent": "A password reset link has been sent to your email: {email}",
+  "@resetLinkSent": {
+    "placeholders": {
+      "email": {}
+    }
+  }
 }
-
-
-

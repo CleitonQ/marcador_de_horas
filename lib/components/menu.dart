@@ -6,6 +6,7 @@ import 'package:horas_v3/models/language_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:horas_v3/models/theme_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:horas_v3/l10n/app_localizations.dart'; // Importando as localizações
 
 class Menu extends StatelessWidget {
   final User user; // O usuário logado, passado como parâmetro para o Menu
@@ -38,16 +39,16 @@ class Menu extends StatelessWidget {
           // Botão para excluir conta
           ListTile(
             leading: Icon(Icons.delete),
-            title: const Text('Excluir Conta'),
+            title: Text(AppLocalizations.of(context)!.deleteAccount), // Tradução
             onTap: () async {
               showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
-                  title: const Text('Confirmar exclusão'),
+                  title: Text(AppLocalizations.of(context)!.confirmDeleteAccount), // Tradução
                   content: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text('Digite sua senha para confirmar a exclusão da conta:'),
+                      Text(AppLocalizations.of(context)!.passwordPrompt), // Tradução
                       TextField(
                         controller: _senhaController,
                         obscureText: true,
@@ -62,7 +63,7 @@ class Menu extends StatelessWidget {
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
-                      child: const Text('Cancelar'),
+                      child: Text(AppLocalizations.of(context)!.cancel), // Tradução
                     ),
                     TextButton(
                       onPressed: () async {
@@ -78,13 +79,13 @@ class Menu extends StatelessWidget {
                           ScaffoldMessenger.of(context).showSnackBar(snackBar);
                         } else {
                           final snackBar = SnackBar(
-                            content: Text('Conta excluída com sucesso!'),
+                            content: Text(AppLocalizations.of(context)!.confirm), // Tradução
                             backgroundColor: Colors.green,
                           );
                           ScaffoldMessenger.of(context).showSnackBar(snackBar);
                         }
                       },
-                      child: const Text('Excluir Conta'),
+                      child: Text(AppLocalizations.of(context)!.confirm), // Tradução
                     ),
                   ],
                 ),
@@ -94,7 +95,7 @@ class Menu extends StatelessWidget {
           // Botão para redefinir senha
           ListTile(
             leading: Icon(Icons.lock_reset),
-            title: const Text('Redefinir Senha'),
+            title: Text(AppLocalizations.of(context)!.resetPassword), // Tradução
             onTap: () {
               showDialog(
                 context: context,
@@ -105,7 +106,7 @@ class Menu extends StatelessWidget {
           // Botão para alterar tema
           ListTile(
             leading: Icon(Icons.brightness_4),
-            title: const Text('Alterar Tema'),
+            title: Text(AppLocalizations.of(context)!.changeTheme), // Tradução
             onTap: () {
               context.read<ThemeProvider>().toggleTheme();
             },
@@ -113,13 +114,13 @@ class Menu extends StatelessWidget {
           // Botão para alterar idioma
           ListTile(
             leading: Icon(Icons.language),
-            title: Text('Idioma'),
+            title: Text(AppLocalizations.of(context)!.changeLanguageButton), // Tradução
             onTap: () {
               // Exibir diálogo com opções de idioma
               showDialog(
                 context: context,
                 builder: (context) => SimpleDialog(
-                  title: const Text('Escolha o idioma'),
+                  title: Text(AppLocalizations.of(context)!.changeLanguageButton), // Tradução
                   children: [
                     SimpleDialogOption(
                       onPressed: () async {
@@ -133,6 +134,21 @@ class Menu extends StatelessWidget {
                         children: [
                           SizedBox(width: 8),
                           Text('English'),
+                        ],
+                      ),
+                    ),
+                    SimpleDialogOption(
+                      onPressed: () async {
+                        languageProvider.setLocale(Locale('es', 'ES')); // Mudar para inglês
+                        // Salvar idioma em SharedPreferences
+                        SharedPreferences prefs = await SharedPreferences.getInstance();
+                        prefs.setString('language', 'es');
+                        Navigator.of(context).pop(); // Fecha o diálogo
+                      },
+                      child: Row(
+                        children: [
+                          SizedBox(width: 8),
+                          Text('Español'),
                         ],
                       ),
                     ),
@@ -159,7 +175,7 @@ class Menu extends StatelessWidget {
           // Botão para deslogar
           ListTile(
             leading: Icon(Icons.logout),
-            title: const Text('Sair'),
+            title: Text(AppLocalizations.of(context)!.logOut), // Tradução
             onTap: () {
               AuthService().deslogar();
             },

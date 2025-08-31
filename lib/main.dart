@@ -14,17 +14,15 @@ import 'package:horas_v3/models/language_provider.dart';  // Importe o LanguageP
 import 'package:horas_v3/l10n/app_localizations.dart'; // Para o uso das traduções
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-
 // Função que simula uma operação cara (demorada)
 int expensiveOperation(int input) {
-  // Simulação de operação cara
   return input * 2;  // Retorna o dobro do valor (apenas exemplo)
 }
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Inicializando Firebase
+  // Inicializando o Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -38,7 +36,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => ThemeProvider()),  // ThemeProvider
         ChangeNotifierProvider(create: (_) => LanguageProvider()),  // LanguageProvider
       ],
-      child: MyApp(),
+      child: const MyApp(),
     ),
   );
 }
@@ -70,6 +68,7 @@ class MyApp extends StatelessWidget {
       ],
       supportedLocales: const [
         Locale('en', 'US'), // Inglês
+        Locale('es', 'ES'), // Espanhol
         Locale('pt', 'BR'), // Português
       ],
       home: const RoteadorTelas(),

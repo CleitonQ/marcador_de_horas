@@ -1,0 +1,47 @@
+{
+  "@@locale": "es",
+  "changeLanguageButton": "Cambiar Idioma",
+  "horas": "Horas",
+  "deleteAccount": "Eliminar Cuenta",
+  "resetPassword": "Restablecer Contraseña",
+  "changeTheme": "Cambiar Tema",
+  "logOut": "Cerrar Sesión",
+  "confirmDeleteAccount": "Confirmar Eliminación",
+  "passwordPrompt": "Introduce tu contraseña para confirmar la eliminación de la cuenta:",
+  "cancel": "Cancelar",
+  "confirm": "Confirmar",
+  "nameLabel": "Nombre",
+  "emailLabel": "Correo electrónico",
+  "passwordLabel": "Contraseña",
+  "confirmPasswordLabel": "Confirma tu contraseña",
+  "registerButton": "Registrarse",
+  "passwordsDoNotMatch": "Las contraseñas no coinciden",
+  "signInButton": "Iniciar sesión",
+  "signInWithGoogle": "Iniciar sesión con Google",
+  "noAccountCreate": "¿No tienes una cuenta? Crea una",
+  "forgotPassword": "¿Olvidaste tu contraseña?",
+  "total": "Total",
+  "emptyStateMessage": "Aún no hay registros",
+  "addButton": "Añadir",
+  "addDialogTitle": "Añadir registro",
+  "editDialogTitle": "Editar registro",
+  "saveButton": "Guardar",
+  "dateLabel": "Fecha",
+  "dateHint": "01/01/2025",
+  "timeLabel": "Hora",
+  "workedHoursLabel": "Horas trabajadas",
+  "workedHoursHint": "00:00",
+  "descriptionLabel": "Descripción",
+  "descriptionHint": "Recordatorio de lo que hiciste",
+  "resetPasswordTitle": "Recuperar contraseña",
+  "emailAddressLabel": "Correo electrónico",
+  "enterValidEmail": "Introduce un correo electrónico válido",
+  "recoverPasswordButton": "Recuperar contraseña",
+  "resetLinkSent": "Se ha enviado un enlace de restablecimiento a tu correo: {email}",
+  "@resetLinkSent": {
+    "placeholders": {
+      "email": {}
+    }
+  }
+}
+

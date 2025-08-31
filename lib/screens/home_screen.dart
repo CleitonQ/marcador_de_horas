@@ -1,18 +1,18 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // Para formatação da data/hora
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:horas_v3/l10n/app_localizations.dart'; // Para acessar as traduções do app
-import 'package:horas_v3/helpers/hour_helpers.dart'; // Helper para manipulação de horas
-import 'package:mask_text_input_formatter/mask_text_input_formatter.dart'; // Para formatar inputs
-import 'package:uuid/uuid.dart'; // Para gerar IDs únicos para cada registro
-import 'package:firebase_auth/firebase_auth.dart'; // Importando Firebase Auth
+import 'package:horas_v3/l10n/app_localizations.dart';
+import 'package:horas_v3/helpers/hour_helpers.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:uuid/uuid.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import '../components/menu.dart';
 import 'package:horas_v3/models/hour.dart';
-import 'package:horas_v3/models/language_provider.dart'; // Importando o LanguageProvider
-import 'package:horas_v3/l10n/l10n.dart';  // Importa o arquivo centralizado de localizações
+import 'package:horas_v3/models/language_provider.dart';
+import 'package:horas_v3/l10n/l10n.dart';
 
 class HomeScreen extends StatefulWidget {
   final User user;
@@ -26,19 +26,21 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<Hour> listHours = [];
   FirebaseFirestore firestore = FirebaseFirestore.instance;
-  String total1 = 'Total';
+
+  // Agora armazenamos só o total formatado, sem o rótulo (que será traduzido na UI)
+  String totalFormatted = '';
 
   @override
   void initState() {
     super.initState();
-    setuptFCM();  // Função definida abaixo
+    setuptFCM();
     refresh();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Pegando o idioma atual do provider
-    final languageProvider = Provider.of<LanguageProvider>(context);
+    final l = AppLocalizations.of(context)!;
+    final languageProvider = Provider.of<LanguageProvider>(context); // (mantido se você usa em outro lugar)
 
     return Scaffold(
       drawer: Menu(user: widget.user),
@@ -46,42 +48,41 @@ class _HomeScreenState extends State<HomeScreen> {
         title: Row(
           children: [
             Text(
-              AppLocalizations.of(context)!.horas,  // Usando a tradução para o título
-              style: TextStyle(fontSize: 18),
+              l.horas,
+              style: const TextStyle(fontSize: 18),
             ),
-            // Traço visual entre os textos
             Container(
-              height: 20, // Altura do traço
-              width: 1, // Espessura do traço
-              color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black, // Cor do traço dinâmica
-              margin: EdgeInsets.symmetric(horizontal: 8), // Espaço entre o traço e os textos
+              height: 20,
+              width: 1,
+              color: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
+              margin: const EdgeInsets.symmetric(horizontal: 8),
             ),
             Text(
-              "$total1", // Exibe o valor da variável total1
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              '${l.total}: $totalFormatted',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ],
         ),
-        actions: [
-          // Relógio
+        actions: const [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: ClockWidget(), // Usando o ClockWidget aqui
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            child: ClockWidget(),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          showFormModal(); // Abre o modal para adicionar uma nova hora
+          showFormModal();
         },
         child: const Icon(Icons.add),
+        tooltip: l.addButton,
       ),
       body: (listHours.isEmpty)
           ? Center(
         child: Text(
-          AppLocalizations.of(context)!.changeLanguageButton, // Exibindo a tradução da mensagem
+          l.emptyStateMessage,
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 18),
+          style: const TextStyle(fontSize: 18),
         ),
       )
           : ListView(
@@ -119,8 +120,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         size: 56,
                       ),
                       title: Text(
-                          "Data: ${model.data} hora: ${HourHelper.minutesTohours(model.minutos)}"),
-                      subtitle: Text(model.descricao!),
+                        '${l.dateLabel}: ${model.data}  ${l.timeLabel}: ${HourHelper.minutesTohours(model.minutos)}',
+                      ),
+                      subtitle: Text(model.descricao ?? ''),
                     )
                   ],
                 ),
@@ -132,25 +134,27 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Função para exibir o modal de adicionar/editar horas
+  // Modal de adicionar/editar horas, todo traduzido
   showFormModal({Hour? model}) {
-    String title = "Adicionar";
-    String confirmationButton = "Salvar";
-    String skipButton = "Cancelar";
+    final l = AppLocalizations.of(context)!;
+
+    String title = l.addDialogTitle;
+    String confirmationButton = l.saveButton;
+    String skipButton = l.cancel;
 
     TextEditingController dataController = TextEditingController();
-    final dataMaskFormatter = MaskTextInputFormatter(mask: '##/##/####'); // Máscara para a data
+    final dataMaskFormatter = MaskTextInputFormatter(mask: '##/##/####');
     TextEditingController minutosController = TextEditingController();
     final minutosMaskFormatter = MaskTextInputFormatter(mask: '##:##');
     TextEditingController descricaoController = TextEditingController();
 
-    // Define o valor da data com o dia atual
+    // Define data atual
     String currentDate = DateFormat('dd/MM/yyyy').format(DateTime.now());
-    dataController.text = currentDate; // Define o campo de data com a data atual
+    dataController.text = currentDate;
 
     if (model != null) {
-      title = "Editando";
-      dataController.text = model.data;  // Se estiver editando, preenche com a data do modelo
+      title = l.editDialogTitle;
+      dataController.text = model.data;
       minutosController.text = HourHelper.minutesTohours(model.minutos);
       if (model.descricao != null) {
         descricaoController.text = model.descricao!;
@@ -166,58 +170,54 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           child: Container(
             padding: const EdgeInsets.all(32),
-            height: MediaQuery.of(context).size.height * 0.6, // Ajuste para o modal flutuante
+            height: MediaQuery.of(context).size.height * 0.6,
             child: ListView(
               children: [
                 Text(title, style: Theme.of(context).textTheme.headlineSmall),
                 TextFormField(
                   controller: dataController,
                   keyboardType: TextInputType.datetime,
-                  decoration: const InputDecoration(
-                    hintText: '01/01/2025',
-                    labelText: 'Data',
+                  decoration: InputDecoration(
+                    hintText: l.dateHint, // '01/01/2025'
+                    labelText: l.dateLabel, // 'Data'
                   ),
-                  inputFormatters: [dataMaskFormatter], // Aplica a formatação automática
+                  inputFormatters: [dataMaskFormatter],
                   onTap: () async {
-                    // Exibir o calendário ao tocar no campo de data
-                    FocusScope.of(context).requestFocus(FocusNode()); // Remove o foco do campo de texto
+                    FocusScope.of(context).requestFocus(FocusNode());
                     DateTime? pickedDate = await showDatePicker(
                       context: context,
                       initialDate: DateTime.now(),
-                      firstDate: DateTime(2000), // Data inicial
-                      lastDate: DateTime(2101), // Data final
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2101),
                     );
                     if (pickedDate != null) {
                       String formattedDate = DateFormat('dd/MM/yyyy').format(pickedDate);
                       setState(() {
-                        dataController.text = formattedDate; // Atualiza o campo de data com a data escolhida
+                        dataController.text = formattedDate;
                       });
                     }
                   },
                 ),
-                const SizedBox(
-                  height: 16,
-                ),
+                const SizedBox(height: 16),
                 TextFormField(
                   controller: minutosController,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                      hintText: '00:00', labelText: 'Horas trabalhadas'),
+                  decoration: InputDecoration(
+                    hintText: l.workedHoursHint, // '00:00'
+                    labelText: l.workedHoursLabel, // 'Horas trabalhadas'
+                  ),
                   inputFormatters: [minutosMaskFormatter],
                 ),
-                const SizedBox(
-                  height: 16,
-                ),
+                const SizedBox(height: 16),
                 TextFormField(
                   controller: descricaoController,
                   keyboardType: TextInputType.text,
-                  decoration: const InputDecoration(
-                      hintText: 'Lembrete do que você fez',
-                      labelText: 'Descrição'),
+                  decoration: InputDecoration(
+                    hintText: l.descriptionHint, // 'Lembrete do que você fez'
+                    labelText: l.descriptionLabel, // 'Descrição'
+                  ),
                 ),
-                const SizedBox(
-                  height: 16,
-                ),
+                const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -225,46 +225,34 @@ class _HomeScreenState extends State<HomeScreen> {
                       onPressed: () {
                         Navigator.pop(context);
                       },
-                      child: Text(
-                        skipButton,
-                      ),
+                      child: Text(skipButton),
                     ),
-                    const SizedBox(
-                      width: 16,
-                    ),
+                    const SizedBox(width: 16),
                     ElevatedButton(
                       onPressed: () {
                         Hour hour = Hour(
-                            id: const Uuid().v1(),
-                            data: dataController.text,
-                            minutos: HourHelper.hoursToMinutos(
-                              minutosController.text,
-                            ));
+                          id: const Uuid().v1(),
+                          data: dataController.text,
+                          minutos: HourHelper.hoursToMinutos(minutosController.text),
+                        );
 
-                        if (descricaoController.text != "") {
-                          hour.descricao = descricaoController.text;
+                        if ((descricaoController.text).trim().isNotEmpty) {
+                          hour.descricao = descricaoController.text.trim();
                         }
 
                         if (model != null) {
                           hour.id = model.id;
                         }
 
-                        firestore
-                            .collection(widget.user.uid)
-                            .doc(hour.id)
-                            .set(hour.toMap());
-
+                        firestore.collection(widget.user.uid).doc(hour.id).set(hour.toMap());
                         refresh();
-
                         Navigator.pop(context);
                       },
                       child: Text(confirmationButton),
                     ),
                   ],
                 ),
-                const SizedBox(
-                  height: 180,
-                )
+                const SizedBox(height: 180),
               ],
             ),
           ),
@@ -292,18 +280,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
     setState(() {
       listHours = temp;
-      total1 = 'Total: ${horas.inHours.toString()}h:${horas.inMinutes.remainder(60).toString().padLeft(2, '0')}';
+      totalFormatted =
+      '${horas.inHours}h:${horas.inMinutes.remainder(60).toString().padLeft(2, '0')}';
     });
   }
 
-  // Função de configuração do Firebase Cloud Messaging (FCM)
   setuptFCM() async {
     final fcmToken = await FirebaseMessaging.instance.getToken();
     print(fcmToken);
 
     FirebaseMessaging messaging = FirebaseMessaging.instance;
 
-    // Solicitar permissão para enviar notificações
     NotificationSettings settings = await messaging.requestPermission(
       alert: true,
       announcement: false,
@@ -314,7 +301,6 @@ class _HomeScreenState extends State<HomeScreen> {
       sound: true,
     );
 
-    // Verifica se a permissão foi concedida
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
       print('User granted permission');
     } else if (settings.authorizationStatus == AuthorizationStatus.provisional) {
@@ -323,7 +309,6 @@ class _HomeScreenState extends State<HomeScreen> {
       print('User declined or has not accepted permission');
     }
 
-    // Escuta as mensagens enquanto o app está em primeiro plano
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       print('Got a message whilst in the foreground!');
       print('### já funciona Message data: ${message.data}');
@@ -335,8 +320,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-// Relógio que não será afetado por alterações de tema ou idioma
 class ClockWidget extends StatefulWidget {
+  const ClockWidget({super.key});
   @override
   _ClockWidgetState createState() => _ClockWidgetState();
 }
@@ -349,12 +334,12 @@ class _ClockWidgetState extends State<ClockWidget> {
   void initState() {
     super.initState();
     _updateTime();
-    _timer = Timer.periodic(Duration(seconds: 1), (_) => _updateTime());
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) => _updateTime());
   }
 
   @override
   void dispose() {
-    _timer.cancel(); // Cancela o timer quando o widget for destruído
+    _timer.cancel();
     super.dispose();
   }
 
@@ -368,9 +353,9 @@ class _ClockWidgetState extends State<ClockWidget> {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(Icons.access_time), // Ícone de relógio
-        SizedBox(width: 8),
-        Text(formattedTime), // Exibe a hora formatada
+        const Icon(Icons.access_time),
+        const SizedBox(width: 8),
+        Text(formattedTime),
       ],
     );
   }

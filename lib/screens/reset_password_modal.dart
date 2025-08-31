@@ -1,71 +1,71 @@
-import 'package:flutter/material.dart';  // Importa o pacote Material Design do Flutter para criar interfaces
-import 'package:horas_v3/services/auth_service.dart';  // Importa o serviço de autenticação personalizado
+import 'package:flutter/material.dart';
+import 'package:horas_v3/services/auth_service.dart';
+import 'package:horas_v3/l10n/app_localizations.dart';
 
-// Classe que representa o modal de recuperação de senha (StatefulWidget)
 class PasswordresetModal extends StatefulWidget {
-  const PasswordresetModal({super.key});  // Construtor da classe, permite a passagem de uma chave única para o widget
+  const PasswordresetModal({super.key});
 
   @override
-  State<PasswordresetModal> createState() => _PasswordresetModalState();  // Cria o estado para o widget
+  State<PasswordresetModal> createState() => _PasswordresetModalState();
 }
 
-// O estado do modal, onde a lógica de exibição e ação é tratada
 class _PasswordresetModalState extends State<PasswordresetModal> {
-  final _formKey = GlobalKey<FormState>();  // Cria uma chave global para validar o formulário
-  final _emailController = TextEditingController();  // Controlador para o campo de texto de e-mail
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
 
-  AuthService authService = AuthService();  // Criação de uma instância do AuthService para gerenciar a autenticação
+  final AuthService authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(  // Cria um diálogo de alerta
-      title: Text('Recuperar senha'),  // Título do modal
-      content: Form(  // Formulário para coletar o e-mail do usuário
-        key: _formKey,  // A chave para validar o formulário
-        child: TextFormField(  // Campo de entrada de texto para o e-mail
-          controller: _emailController,  // Controlador para o campo de e-mail
-          keyboardType: TextInputType.emailAddress,  // Tipo de teclado específico para e-mails
-          decoration: const InputDecoration(labelText: 'Endereço de e-mail'),  // Rótulo para o campo
-          validator: (value) {  // Validador para garantir que o e-mail seja fornecido
-            if (value!.isEmpty) {
-              return 'Informe um endereço de e-mail válido';  // Retorna erro se o campo estiver vazio
+    final l = AppLocalizations.of(context)!;
+
+    return AlertDialog(
+      title: Text(l.resetPasswordTitle),
+      content: Form(
+        key: _formKey,
+        child: TextFormField(
+          controller: _emailController,
+          keyboardType: TextInputType.emailAddress,
+          decoration: InputDecoration(labelText: l.emailAddressLabel),
+          validator: (value) {
+            if (value == null || value.trim().isEmpty) {
+              return l.enterValidEmail;
             }
-            return null;  // Retorna null se o e-mail for válido
+            return null;
           },
         ),
       ),
-      actions: <TextButton>[  // Definindo as ações do modal (botões)
+      actions: <TextButton>[
         TextButton(
-          onPressed: () {  // Ação para fechar o modal
-            Navigator.of(context).pop();  // Fecha o modal
-          },
-          child: Text('Cancelar'),  // Texto do botão de cancelar
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l.cancel),
         ),
         TextButton(
-          onPressed: () {  // Ação para recuperar a senha
-            if (_formKey.currentState!.validate()) {  // Valida o formulário antes de enviar a solicitação
+          onPressed: () {
+            if (_formKey.currentState!.validate()) {
               authService
-                  .redefinicaoSenha(email: _emailController.text)  // Chama a função para redefinir a senha
-                  .then((String? erro) {  // Aguarda o resultado da redefinição da senha
-                Navigator.of(context).pop();  // Fecha o modal após a solicitação
+                  .redefinicaoSenha(email: _emailController.text.trim())
+                  .then((String? erro) {
+                Navigator.of(context).pop();
 
-                // Se ocorreu um erro durante a redefinição, exibe um snack bar com a mensagem de erro
                 if (erro != null) {
                   final snackBar = SnackBar(
-                      content: Text(erro), backgroundColor: Colors.red);  // Exibe mensagem de erro
-                  ScaffoldMessenger.of(context).showSnackBar(snackBar);  // Exibe o snack bar
+                    content: Text(erro),
+                    backgroundColor: Colors.red,
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
                 } else {
-                  // Se a redefinição foi bem-sucedida, exibe uma mensagem de sucesso
                   final snackBar = SnackBar(
                     content: Text(
-                        'Um link de redefinição de senha foi enviado para o seu e-mail: ${_emailController.text}'),
+                      l.resetLinkSent(_emailController.text.trim()),
+                    ),
                   );
-                  ScaffoldMessenger.of(context).showSnackBar(snackBar);  // Exibe o snack bar
+                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
                 }
               });
             }
           },
-          child: Text('Recuperar senha'),  // Texto do botão de recuperação de senha
+          child: Text(l.recoverPasswordButton),
         )
       ],
     );

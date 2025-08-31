@@ -1,11 +1,59 @@
-import 'app_localizations.dart';
-
-class AppLocalizationsEn extends AppLocalizations {
-AppLocalizationsEn() : super('en');
-
-@override
-String get changeLanguageButton => 'Change Language'; // Tradução para o inglês
-
-@override
-String get horas => 'Horas'; // Tradução para "Hours"
+{
+  "@@locale": "pt",
+  "changeLanguageButton": "Mudar Idioma",
+  "horas": "Horas",
+  "deleteAccount": "Excluir Conta",
+  "resetPassword": "Redefinir Senha",
+  "changeTheme": "Alterar Tema",
+  "logOut": "Sair",
+  "confirmDeleteAccount": "Confirmar exclusão",
+  "passwordPrompt": "Digite sua senha para confirmar a exclusão da conta:",
+  "cancel": "Cancelar",
+  "confirm": "Confirmar",
+  "nameLabel": "Nome",
+  "emailLabel": "E-mail",
+  "passwordLabel": "Senha",
+  "confirmPasswordLabel": "Confirme sua senha",
+  "registerButton": "Cadastrar",
+  "passwordsDoNotMatch": "As senhas não correspondem",
+  "signInButton": "Entrar",
+  "signInWithGoogle": "Entrar com Google",
+  "noAccountCreate": "Ainda não tem uma conta? Crie uma conta",
+  "forgotPassword": "Esqueceu sua senha?",
+  "total": "Total",
+  "emptyStateMessage": "Nenhum registro ainda",
+  "addButton": "Adicionar",
+  "addDialogTitle": "Adicionar registro",
+  "editDialogTitle": "Editar registro",
+  "saveButton": "Salvar",
+  "dateLabel": "Data",
+  "dateHint": "01/01/2025",
+  "timeLabel": "Hora",
+  "workedHoursLabel": "Horas trabalhadas",
+  "workedHoursHint": "00:00",
+  "descriptionLabel": "Descrição",
+  "descriptionHint": "Lembrete do que você fez",
+  "total": "Total",
+  "emptyStateMessage": "Nenhum registro ainda",
+  "addButton": "Adicionar",
+  "addDialogTitle": "Adicionar registro",
+  "editDialogTitle": "Editar registro",
+  "saveButton": "Salvar",
+  "dateLabel": "Data",
+  "dateHint": "01/01/2025",
+  "timeLabel": "Hora",
+  "workedHoursLabel": "Horas trabalhadas",
+  "workedHoursHint": "00:00",
+  "descriptionLabel": "Descrição",
+  "descriptionHint": "Lembrete do que você fez",
+  "resetPasswordTitle": "Recuperar senha",
+  "emailAddressLabel": "Endereço de e-mail",
+  "enterValidEmail": "Informe um endereço de e-mail válido",
+  "recoverPasswordButton": "Recuperar senha",
+  "resetLinkSent": "Um link de redefinição de senha foi enviado para o seu e-mail: {email}",
+  "@resetLinkSent": {
+    "placeholders": {
+      "email": {}
+    }
+  }
 }
