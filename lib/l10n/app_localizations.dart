@@ -6,59 +6,6 @@ import 'package:intl/intl.dart' as intl;
 import 'app_localizations_en.dart';
 import 'app_localizations_pt.dart';
 
-// ignore_for_file: type=lint
-
-/// Callers can lookup localized strings with an instance of AppLocalizations
-/// returned by `AppLocalizations.of(context)`.
-///
-/// Applications need to include `AppLocalizations.delegate()` in their app's
-/// `localizationDelegates` list, and the locales they support in the app's
-/// `supportedLocales` list. For example:
-///
-/// ```dart
-/// import 'l10n/app_localizations.dart';
-///
-/// return MaterialApp(
-///   localizationsDelegates: AppLocalizations.localizationsDelegates,
-///   supportedLocales: AppLocalizations.supportedLocales,
-///   home: MyApplicationHome(),
-/// );
-/// ```
-///
-/// ## Update pubspec.yaml
-///
-/// Please make sure to update your pubspec.yaml to include the following
-/// packages:
-///
-/// ```yaml
-/// dependencies:
-///   # Internationalization support.
-///   flutter_localizations:
-///     sdk: flutter
-///   intl: any # Use the pinned version from flutter_localizations
-///
-///   # Rest of dependencies
-/// ```
-///
-/// ## iOS Applications
-///
-/// iOS applications define key application metadata, including supported
-/// locales, in an Info.plist file that is built into the application bundle.
-/// To configure the locales supported by your app, you’ll need to edit this
-/// file.
-///
-/// First, open your project’s ios/Runner.xcworkspace Xcode workspace file.
-/// Then, in the Project Navigator, open the Info.plist file under the Runner
-/// project’s Runner folder.
-///
-/// Next, select the Information Property List item, select Add Item from the
-/// Editor menu, then select Localizations from the pop-up menu.
-///
-/// Select and expand the newly-created Localizations item then, for each
-/// locale your application supports, add a new item and select the locale
-/// you wish to add from the pop-up menu in the Value field. This list should
-/// be consistent with the languages listed in the AppLocalizations.supportedLocales
-/// property.
 abstract class AppLocalizations {
   AppLocalizations(String locale)
       : localeName = intl.Intl.canonicalizedLocale(locale.toString());
@@ -70,20 +17,10 @@ abstract class AppLocalizations {
   }
 
   static const LocalizationsDelegate<AppLocalizations> delegate =
-      _AppLocalizationsDelegate();
+  _AppLocalizationsDelegate();
 
-  /// A list of this localizations delegate along with the default localizations
-  /// delegates.
-  ///
-  /// Returns a list of localizations delegates containing this delegate along with
-  /// GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate,
-  /// and GlobalWidgetsLocalizations.delegate.
-  ///
-  /// Additional delegates can be added by appending to this list in
-  /// MaterialApp. This list does not have to be used at all if a custom list
-  /// of delegates is preferred or required.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
-      <LocalizationsDelegate<dynamic>>[
+  <LocalizationsDelegate<dynamic>>[
     delegate,
     GlobalMaterialLocalizations.delegate,
     GlobalCupertinoLocalizations.delegate,
@@ -96,12 +33,17 @@ abstract class AppLocalizations {
     Locale('pt')
   ];
 
-  /// No description provided for @horas.
-  ///
-  /// In en, this message translates to:
-  /// **'Hours'**
-  String get changeLanguageButton;
-  String get horas;
+  // Novos textos para as traduções no menu
+  String get changeLanguageButton; // "Mudar Idioma"
+  String get horas; // "Horas"
+  String get deleteAccount; // "Excluir Conta"
+  String get resetPassword; // "Redefinir Senha"
+  String get changeTheme; // "Alterar Tema"
+  String get logOut; // "Sair"
+  String get confirmDeleteAccount; // "Confirmar exclusão"
+  String get passwordPrompt; // "Digite sua senha para confirmar a exclusão da conta"
+  String get cancel; // "Cancelar"
+  String get confirm; // "Confirmar"
 }
 
 class _AppLocalizationsDelegate
@@ -122,7 +64,7 @@ class _AppLocalizationsDelegate
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
-  // Lookup logic when only language code is specified.
+  // Logic to select the correct localization class based on the language code
   switch (locale.languageCode) {
     case 'en':
       return AppLocalizationsEn();
@@ -132,7 +74,57 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
 
   throw FlutterError(
       'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-      'an issue with the localizations generation tool. Please file an issue '
-      'on GitHub with a reproducible sample app and the gen-l10n configuration '
-      'that was used.');
+          'an issue with the localizations generation tool. Please file an issue '
+          'on GitHub with a reproducible sample app and the gen-l10n configuration '
+          'that was used.');
+}
+
+class AppLocalizationsEn extends AppLocalizations {
+  AppLocalizationsEn() : super('en');
+
+  @override
+  String get changeLanguageButton => 'Change Language';
+  @override
+  String get horas => 'Hours';
+  @override
+  String get deleteAccount => 'Delete Account';
+  @override
+  String get resetPassword => 'Reset Password';
+  @override
+  String get changeTheme => 'Change Theme';
+  @override
+  String get logOut => 'Log Out';
+  @override
+  String get confirmDeleteAccount => 'Confirm Account Deletion';
+  @override
+  String get passwordPrompt => 'Enter your password to confirm account deletion:';
+  @override
+  String get cancel => 'Cancel';
+  @override
+  String get confirm => 'Confirm';
+}
+
+class AppLocalizationsPt extends AppLocalizations {
+  AppLocalizationsPt() : super('pt');
+
+  @override
+  String get changeLanguageButton => 'Mudar Idioma';
+  @override
+  String get horas => 'Horas';
+  @override
+  String get deleteAccount => 'Excluir Conta';
+  @override
+  String get resetPassword => 'Redefinir Senha';
+  @override
+  String get changeTheme => 'Alterar Tema';
+  @override
+  String get logOut => 'Sair';
+  @override
+  String get confirmDeleteAccount => 'Confirmar exclusão';
+  @override
+  String get passwordPrompt => 'Digite sua senha para confirmar a exclusão da conta:';
+  @override
+  String get cancel => 'Cancelar';
+  @override
+  String get confirm => 'Confirmar';
 }
